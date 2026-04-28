@@ -3,281 +3,523 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>同窓会クイズ進行ボード</title>
+<title>チーム対抗！頭脳王決定戦</title>
 <style>
   :root {
-    --bg: #0f172a;
-    --panel: #1e293b;
-    --panel-2: #273449;
-    --accent: #38bdf8;
-    --accent-2: #f59e0b;
+    --primary: #1e8fe3;
+    --primary-dark: #1976c8;
+    --primary-light: #e3f2fd;
+    --primary-lighter: #f4faff;
+    --bg: #f7fafd;
+    --text: #1f2d3d;
+    --muted: #8a99ad;
+    --border: #d6e4f0;
+    --border-strong: #b8d0e6;
     --success: #22c55e;
-    --danger: #ef4444;
-    --text: #f1f5f9;
-    --muted: #94a3b8;
-    --border: #334155;
+    --shadow: 0 2px 8px rgba(30, 143, 227, 0.08);
+    --shadow-md: 0 4px 16px rgba(30, 143, 227, 0.12);
+    --team-a: #1e8fe3;
+    --team-b: #f59e0b;
+    --team-c: #10b981;
+    --team-d: #8b5cf6;
+    --team-e: #ef4444;
   }
   * { box-sizing: border-box; }
+  html, body { height: 100%; }
   body {
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", "Noto Sans JP", sans-serif;
     background: var(--bg);
     color: var(--text);
-    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
   }
+
+  /* ---------- Header ---------- */
   header {
-    background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
-    padding: 20px 24px;
-    border-bottom: 2px solid var(--accent);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    color: #fff;
+    padding: 18px 28px;
+    box-shadow: var(--shadow-md);
   }
-  .header-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: center;
-    justify-content: space-between;
+  .header-inner {
     max-width: 1400px;
     margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
   }
-  h1 {
+  .title-block h1 {
     margin: 0;
     font-size: 1.5rem;
-    color: var(--accent);
+    font-weight: 800;
     letter-spacing: 0.05em;
   }
-  .global-timer {
+  .title-block .subtitle {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+  .global-control {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     flex-wrap: wrap;
   }
-  .timer-display {
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--accent-2);
-    min-width: 140px;
-    text-align: center;
-    padding: 6px 16px;
-    background: rgba(0,0,0,0.3);
-    border-radius: 8px;
-    border: 1px solid var(--border);
-  }
-  .timer-display.running {
-    color: var(--success);
-    box-shadow: 0 0 16px rgba(34, 197, 94, 0.3);
-  }
-  button {
-    background: var(--panel-2);
-    color: var(--text);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 10px 18px;
-    font-size: 0.95rem;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-family: inherit;
-  }
-  button:hover:not(:disabled) {
-    background: #334155;
-    transform: translateY(-1px);
-  }
-  button:active:not(:disabled) {
-    transform: translateY(0);
-  }
-  button:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-  .btn-primary {
-    background: var(--success);
-    border-color: var(--success);
-    color: #fff;
-    font-weight: 600;
-  }
-  .btn-primary:hover:not(:disabled) { background: #16a34a; }
-  .btn-warn {
-    background: var(--accent-2);
-    border-color: var(--accent-2);
-    color: #1e293b;
-    font-weight: 600;
-  }
-  .btn-warn:hover:not(:disabled) { background: #d97706; }
-  .btn-danger {
-    background: transparent;
-    border-color: var(--danger);
-    color: var(--danger);
-  }
-  .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
-
-  main {
-    padding: 24px;
-    max-width: 1400px;
-    margin: 0 auto;
-  }
-  .teams {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
-  }
-  .team {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 18px;
+  .elapsed {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    transition: border-color 0.2s;
+    align-items: center;
+    background: rgba(255,255,255,0.15);
+    padding: 6px 18px;
+    border-radius: 10px;
+    backdrop-filter: blur(6px);
   }
-  .team.active {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent);
+  .elapsed-label {
+    font-size: 0.7rem;
+    opacity: 0.85;
+    letter-spacing: 0.1em;
   }
-  .team.done {
-    border-color: var(--success);
-    background: linear-gradient(180deg, var(--panel) 0%, rgba(34, 197, 94, 0.08) 100%);
-  }
-  .team-name {
-    font-size: 1.2rem;
+  .elapsed-time {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1.8rem;
     font-weight: 700;
-    margin: 0;
-    cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 6px;
+    line-height: 1.1;
   }
-  .team-name:hover { background: rgba(255,255,255,0.05); }
-  .team-name input {
-    background: var(--panel-2);
-    border: 1px solid var(--accent);
-    color: var(--text);
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding: 4px 6px;
-    border-radius: 6px;
-    width: 100%;
+  .elapsed.running .elapsed-time {
+    text-shadow: 0 0 12px rgba(255,255,255,0.5);
+  }
+
+  button {
     font-family: inherit;
+    font-size: 0.95rem;
+    border-radius: 10px;
+    border: none;
+    padding: 10px 18px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.15s;
+    background: #fff;
+    color: var(--primary-dark);
   }
-  .progress {
+  button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  }
+  button:active:not(:disabled) { transform: translateY(0); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-start {
+    background: #fff;
+    color: var(--primary-dark);
+  }
+  .btn-pause {
+    background: #fff3cd;
+    color: #92400e;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.5);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: rgba(255,255,255,0.1);
+  }
+
+  /* ---------- Main board ---------- */
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 28px;
+  }
+
+  .board {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 20px 24px 24px;
+    overflow-x: auto;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 110px minmax(720px, 1fr) 130px;
+    gap: 16px;
+    align-items: center;
+  }
+
+  /* Track header */
+  .header-row {
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+    border-bottom: 2px solid var(--primary-light);
+  }
+  .header-row .row-label { /* empty cell */ }
+
+  .step-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+  }
+  .step-head {
+    text-align: center;
+    padding: 8px 4px;
+    position: relative;
+  }
+  .step-head + .step-head::before {
+    content: "";
+    position: absolute;
+    left: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid var(--primary);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    opacity: 0.45;
+  }
+  .step-head .pill {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 3px 14px;
+    border-radius: 999px;
+    margin-bottom: 6px;
+  }
+  .step-head.goal .pill { background: var(--success); }
+  .step-head .icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-top: 2px;
+  }
+  .step-head.goal .icon {
+    background: #d1fae5;
+    color: var(--success);
+  }
+  .step-head .label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-top: 4px;
+    color: var(--text);
+  }
+
+  /* Team rows */
+  .team-row {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--primary-light);
+  }
+  .team-row:last-of-type { border-bottom: none; }
+
+  .row-label {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 8px;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .row-label:hover { background: var(--primary-lighter); }
+  .row-label .swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+
+  .lane {
+    position: relative;
+    background: var(--primary-lighter);
+    border: 1px dashed var(--border-strong);
+    border-radius: 14px;
+    height: 86px;
+    overflow: hidden;
+  }
+  .lane-cells {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .lane-cell {
+    border-right: 1px dashed var(--border-strong);
+  }
+  .lane-cell:last-child { border-right: none; }
+  .lane-cell.target {
+    background: rgba(30, 143, 227, 0.05);
+  }
+
+  .marker {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 0;
+    width: 25%;
+    padding: 0 8px;
+    transform: translateX(0);
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+  .marker-inner {
+    height: 100%;
+    width: 100%;
+    background: var(--team-color, var(--primary));
+    color: #fff;
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    align-items: center;
+    gap: 8px;
+    padding: 0 12px 0 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    position: relative;
+  }
+  .marker-inner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0) 50%);
+    pointer-events: none;
+  }
+  .marker-letter {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    border: 2px solid rgba(255,255,255,0.7);
+    color: #fff;
+    font-weight: 800;
+    font-size: 1.15rem;
     display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .marker-info {
+    overflow: hidden;
+    line-height: 1.2;
+  }
+  .marker-name {
+    font-size: 0.78rem;
+    opacity: 0.92;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .marker-time {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .marker.done .marker-inner {
+    background: var(--success);
+  }
+  .marker.done .marker-time::before {
+    content: "✓ ";
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
     gap: 6px;
   }
-  .progress-dot {
-    flex: 1;
-    height: 8px;
-    background: var(--panel-2);
-    border-radius: 4px;
-    transition: background 0.2s;
-  }
-  .progress-dot.solved { background: var(--success); }
-  .progress-dot.current { background: var(--accent); animation: pulse 1.5s infinite; }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
-  .status {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    background: rgba(0,0,0,0.2);
+  .btn-advance {
+    background: var(--primary);
+    color: #fff;
     padding: 10px 12px;
-    border-radius: 8px;
+    width: 100%;
+    font-size: 0.9rem;
   }
-  .status-label {
+  .btn-advance:hover:not(:disabled) {
+    background: var(--primary-dark);
+  }
+  .btn-advance.goal {
+    background: var(--success);
+  }
+  .btn-advance.goal:hover:not(:disabled) {
+    background: #16a34a;
+  }
+  .btn-undo {
+    background: transparent;
     color: var(--muted);
+    padding: 4px 8px;
+    width: 100%;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border: 1px solid transparent;
+  }
+  .btn-undo:hover:not(:disabled) {
+    color: var(--text);
+    border-color: var(--border);
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* History footer */
+  .summary {
+    margin-top: 18px;
+    padding: 14px 18px;
+    background: var(--primary-lighter);
+    border-radius: 12px;
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 16px;
+    align-items: center;
     font-size: 0.85rem;
   }
-  .status-value {
-    font-size: 1.1rem;
-    font-weight: 600;
-  }
-  .question-timer {
-    font-family: "SF Mono", Menlo, Consolas, monospace;
-    font-size: 1.6rem;
+  .summary-title {
     font-weight: 700;
-    text-align: center;
-    color: var(--accent);
-    padding: 8px;
-    background: rgba(0,0,0,0.25);
-    border-radius: 8px;
+    color: var(--primary-dark);
   }
-  .team.done .question-timer { color: var(--success); }
-  .controls {
+  .summary-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(5, 1fr);
     gap: 8px;
   }
-  .controls .full {
-    grid-column: 1 / -1;
+  .summary-team {
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
   }
-  .history {
-    border-top: 1px solid var(--border);
-    padding-top: 10px;
-    margin-top: auto;
-    font-size: 0.85rem;
-    color: var(--muted);
-  }
-  .history-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 3px 0;
-  }
-  .history-item .time {
-    font-family: "SF Mono", Menlo, Consolas, monospace;
+  .summary-team .name {
+    font-weight: 700;
+    font-size: 0.8rem;
     color: var(--text);
   }
-  .total-time {
-    color: var(--accent-2);
-    font-weight: 700;
+  .summary-team .splits {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: 2px;
   }
-  @media (max-width: 600px) {
-    h1 { font-size: 1.2rem; }
-    .timer-display { font-size: 1.6rem; }
-    main { padding: 12px; }
+  .summary-team .total {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-top: 2px;
+  }
+  .summary-team.done .total { color: var(--success); }
+
+  @media (max-width: 800px) {
+    main { padding: 14px; }
+    .board { padding: 14px; }
+    .row {
+      grid-template-columns: 80px minmax(520px, 1fr) 110px;
+      gap: 10px;
+    }
+    .lane { height: 76px; }
+    .marker-time { font-size: 1.05rem; }
+    .summary { grid-template-columns: 1fr; }
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .title-block h1 { font-size: 1.15rem; }
+    .elapsed-time { font-size: 1.4rem; }
   }
 </style>
 </head>
 <body>
+
 <header>
-  <div class="header-row">
-    <h1>同窓会クイズ 進行ボード</h1>
-    <div class="global-timer">
-      <div id="globalTimer" class="timer-display">00:00</div>
-      <button id="startBtn" class="btn-primary">スタート</button>
-      <button id="resetBtn" class="btn-danger">全リセット</button>
+  <div class="header-inner">
+    <div class="title-block">
+      <h1>チーム対抗！頭脳王決定戦</h1>
+      <div class="subtitle">3問の問題を解いて、最速クリアを目指そう！</div>
+    </div>
+    <div class="global-control">
+      <div id="elapsed" class="elapsed">
+        <div class="elapsed-label">TOTAL TIME</div>
+        <div id="globalTime" class="elapsed-time">00:00</div>
+      </div>
+      <button id="startBtn" class="btn-start">▶ スタート</button>
+      <button id="resetBtn" class="btn-ghost">リセット</button>
     </div>
   </div>
 </header>
 
 <main>
-  <div id="teams" class="teams"></div>
+  <div class="board">
+    <div class="row header-row">
+      <div></div>
+      <div class="step-grid">
+        <div class="step-head">
+          <div class="pill">STEP 1</div>
+          <div><span class="icon">📩</span></div>
+          <span class="label">第1問</span>
+        </div>
+        <div class="step-head">
+          <div class="pill">STEP 2</div>
+          <div><span class="icon">💡</span></div>
+          <span class="label">第2問</span>
+        </div>
+        <div class="step-head">
+          <div class="pill">STEP 3</div>
+          <div><span class="icon">💬</span></div>
+          <span class="label">第3問</span>
+        </div>
+        <div class="step-head goal">
+          <div class="pill">GOAL</div>
+          <div><span class="icon">✓</span></div>
+          <span class="label">完了</span>
+        </div>
+      </div>
+      <div></div>
+    </div>
+
+    <div id="teams"></div>
+
+    <div class="summary">
+      <div class="summary-title">経過記録</div>
+      <div id="summary" class="summary-grid"></div>
+    </div>
+  </div>
 </main>
 
 <script>
 (function () {
-  const STORAGE_KEY = "quiz-board-state-v1";
+  const STORAGE_KEY = "quiz-board-state-v2";
   const TEAM_COUNT = 5;
   const QUESTION_COUNT = 3;
+  const TEAM_LETTERS = ["A", "B", "C", "D", "E"];
+  const TEAM_COLORS = [
+    "var(--team-a)",
+    "var(--team-b)",
+    "var(--team-c)",
+    "var(--team-d)",
+    "var(--team-e)",
+  ];
 
   function defaultState() {
     return {
       running: false,
-      globalStartedAt: null,        // ms epoch (when current run started)
-      globalAccumulated: 0,         // ms (frozen total when paused)
-      teams: Array.from({ length: TEAM_COUNT }, (_, i) => ({
-        name: `${String.fromCharCode(65 + i)}チーム`,
-        currentQuestion: 0,         // 0..QUESTION_COUNT (== done)
-        questionStartedAt: null,    // ms epoch within global running time? we use global elapsed ms
-        questionAccumulated: 0,     // ms accumulated for current question while paused
-        history: [],                // array of ms per solved question
+      globalStartedAt: null,
+      globalAccumulated: 0,
+      teams: TEAM_LETTERS.map((letter) => ({
+        name: `${letter}チーム`,
+        currentQuestion: 0,
+        questionStartedAt: null,
+        questionAccumulated: 0,
+        history: [],
       })),
     };
   }
-
-  let state = loadState();
 
   function loadState() {
     try {
@@ -295,7 +537,9 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
-  function nowMs() { return Date.now(); }
+  let state = loadState();
+
+  const nowMs = () => Date.now();
 
   function globalElapsedMs() {
     if (state.running && state.globalStartedAt != null) {
@@ -313,7 +557,7 @@
   }
 
   function formatTime(ms) {
-    const totalSec = Math.floor(ms / 1000);
+    const totalSec = Math.max(0, Math.floor(ms / 1000));
     const m = Math.floor(totalSec / 60);
     const s = totalSec % 60;
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
@@ -321,15 +565,11 @@
 
   function startGlobal() {
     if (state.running) return;
-    state.running = true;
     const t = nowMs();
+    state.running = true;
     state.globalStartedAt = t;
     state.teams.forEach((team) => {
-      if (team.currentQuestion < QUESTION_COUNT) {
-        team.questionStartedAt = t;
-      } else {
-        team.questionStartedAt = null;
-      }
+      team.questionStartedAt = team.currentQuestion < QUESTION_COUNT ? t : null;
     });
     saveState();
     render();
@@ -363,8 +603,7 @@
   function advanceTeam(idx) {
     const team = state.teams[idx];
     if (team.currentQuestion >= QUESTION_COUNT) return;
-    const elapsed = teamCurrentQuestionMs(team);
-    team.history.push(elapsed);
+    team.history.push(teamCurrentQuestionMs(team));
     team.currentQuestion += 1;
     team.questionAccumulated = 0;
     if (state.running && team.currentQuestion < QUESTION_COUNT) {
@@ -383,11 +622,7 @@
     const prev = team.history.pop();
     team.currentQuestion -= 1;
     team.questionAccumulated = prev;
-    if (state.running) {
-      team.questionStartedAt = nowMs();
-    } else {
-      team.questionStartedAt = null;
-    }
+    team.questionStartedAt = state.running ? nowMs() : null;
     saveState();
     render();
   }
@@ -403,145 +638,147 @@
     render();
   }
 
-  // ---------- rendering ----------
+  // ---------- DOM ----------
   const teamsRoot = document.getElementById("teams");
-  const globalTimerEl = document.getElementById("globalTimer");
+  const summaryRoot = document.getElementById("summary");
+  const globalTimeEl = document.getElementById("globalTime");
+  const elapsedEl = document.getElementById("elapsed");
   const startBtn = document.getElementById("startBtn");
   const resetBtn = document.getElementById("resetBtn");
 
   function render() {
-    // Global timer button
-    startBtn.textContent = state.running ? "一時停止" : "スタート";
-    startBtn.classList.toggle("btn-primary", !state.running);
-    startBtn.classList.toggle("btn-warn", state.running);
-    globalTimerEl.classList.toggle("running", state.running);
+    startBtn.textContent = state.running ? "❚❚ 一時停止" : "▶ スタート";
+    startBtn.classList.toggle("btn-start", !state.running);
+    startBtn.classList.toggle("btn-pause", state.running);
+    elapsedEl.classList.toggle("running", state.running);
 
-    // Build teams (full re-render keeps things simple)
     teamsRoot.innerHTML = "";
     state.teams.forEach((team, idx) => {
-      const card = document.createElement("div");
-      card.className = "team";
       const isDone = team.currentQuestion >= QUESTION_COUNT;
-      if (isDone) card.classList.add("done");
-      else if (state.running) card.classList.add("active");
+      const position = Math.min(team.currentQuestion, QUESTION_COUNT); // 0..3
 
-      // Name
-      const name = document.createElement("h2");
-      name.className = "team-name";
-      name.textContent = team.name;
-      name.title = "クリックでチーム名を変更";
-      name.addEventListener("click", () => renameTeam(idx));
-      card.appendChild(name);
+      const row = document.createElement("div");
+      row.className = "row team-row";
 
-      // Progress dots
-      const progress = document.createElement("div");
-      progress.className = "progress";
-      for (let q = 0; q < QUESTION_COUNT; q++) {
-        const dot = document.createElement("div");
-        dot.className = "progress-dot";
-        if (q < team.currentQuestion) dot.classList.add("solved");
-        else if (q === team.currentQuestion && !isDone) dot.classList.add("current");
-        progress.appendChild(dot);
+      // Team label
+      const label = document.createElement("div");
+      label.className = "row-label";
+      label.title = "クリックでチーム名を変更";
+      label.innerHTML = `<span class="swatch" style="background:${TEAM_COLORS[idx]}"></span><span class="lname"></span>`;
+      label.querySelector(".lname").textContent = team.name;
+      label.addEventListener("click", () => renameTeam(idx));
+      row.appendChild(label);
+
+      // Lane
+      const lane = document.createElement("div");
+      lane.className = "lane";
+      const cells = document.createElement("div");
+      cells.className = "lane-cells";
+      for (let c = 0; c < 4; c++) {
+        const cell = document.createElement("div");
+        cell.className = "lane-cell";
+        if (c === position) cell.classList.add("target");
+        cells.appendChild(cell);
       }
-      card.appendChild(progress);
+      lane.appendChild(cells);
 
-      // Status row: current question number
-      const status = document.createElement("div");
-      status.className = "status";
-      const lbl = document.createElement("span");
-      lbl.className = "status-label";
-      lbl.textContent = "現在の問題";
-      const val = document.createElement("span");
-      val.className = "status-value";
-      val.textContent = isDone
-        ? "完了 🎉"
-        : `第 ${team.currentQuestion + 1} 問 / ${QUESTION_COUNT}`;
-      status.appendChild(lbl);
-      status.appendChild(val);
-      card.appendChild(status);
+      const marker = document.createElement("div");
+      marker.className = "marker" + (isDone ? " done" : "");
+      marker.style.setProperty("--team-color", TEAM_COLORS[idx]);
+      marker.style.transform = `translateX(${position * 100}%)`;
+      marker.dataset.teamIdx = String(idx);
 
-      // Question timer
-      const qt = document.createElement("div");
-      qt.className = "question-timer";
-      qt.dataset.teamIdx = String(idx);
-      qt.textContent = isDone ? "—" : formatTime(teamCurrentQuestionMs(team));
-      card.appendChild(qt);
+      const inner = document.createElement("div");
+      inner.className = "marker-inner";
+      inner.innerHTML = `
+        <div class="marker-letter">${TEAM_LETTERS[idx]}</div>
+        <div class="marker-info">
+          <div class="marker-name"></div>
+          <div class="marker-time">00:00</div>
+        </div>
+      `;
+      inner.querySelector(".marker-name").textContent = team.name;
+      inner.querySelector(".marker-time").textContent = isDone
+        ? formatTime(team.history.reduce((a, b) => a + b, 0))
+        : formatTime(teamCurrentQuestionMs(team));
+      marker.appendChild(inner);
+      lane.appendChild(marker);
+      row.appendChild(lane);
 
-      // Controls
-      const controls = document.createElement("div");
-      controls.className = "controls";
-
-      const advanceBtn = document.createElement("button");
-      advanceBtn.className = "btn-primary full";
-      advanceBtn.textContent = isDone
-        ? "完了済み"
+      // Actions
+      const actions = document.createElement("div");
+      actions.className = "actions";
+      const advance = document.createElement("button");
+      advance.className = "btn-advance" + (team.currentQuestion === QUESTION_COUNT - 1 ? " goal" : "");
+      advance.textContent = isDone
+        ? "🏁 完了"
         : team.currentQuestion === QUESTION_COUNT - 1
-          ? "最終問題を完了"
-          : "次の問題へ";
-      advanceBtn.disabled = isDone;
-      advanceBtn.addEventListener("click", () => advanceTeam(idx));
-      controls.appendChild(advanceBtn);
+          ? "完了 →"
+          : "次へ →";
+      advance.disabled = isDone;
+      advance.addEventListener("click", () => advanceTeam(idx));
 
-      const undoBtn = document.createElement("button");
-      undoBtn.className = "full";
-      undoBtn.textContent = "1問戻す";
-      undoBtn.disabled = team.history.length === 0;
-      undoBtn.addEventListener("click", () => undoTeam(idx));
-      controls.appendChild(undoBtn);
+      const undo = document.createElement("button");
+      undo.className = "btn-undo";
+      undo.textContent = "← 1問戻す";
+      undo.disabled = team.history.length === 0;
+      undo.addEventListener("click", () => undoTeam(idx));
 
-      card.appendChild(controls);
+      actions.appendChild(advance);
+      actions.appendChild(undo);
+      row.appendChild(actions);
 
-      // History
-      if (team.history.length > 0 || isDone) {
-        const hist = document.createElement("div");
-        hist.className = "history";
-        team.history.forEach((ms, qIdx) => {
-          const row = document.createElement("div");
-          row.className = "history-item";
-          const lab = document.createElement("span");
-          lab.textContent = `第${qIdx + 1}問`;
-          const tm = document.createElement("span");
-          tm.className = "time";
-          tm.textContent = formatTime(ms);
-          row.appendChild(lab);
-          row.appendChild(tm);
-          hist.appendChild(row);
-        });
-        if (isDone) {
-          const total = team.history.reduce((a, b) => a + b, 0);
-          const row = document.createElement("div");
-          row.className = "history-item";
-          const lab = document.createElement("span");
-          lab.textContent = "合計";
-          const tm = document.createElement("span");
-          tm.className = "time total-time";
-          tm.textContent = formatTime(total);
-          row.appendChild(lab);
-          row.appendChild(tm);
-          hist.appendChild(row);
-        }
-        card.appendChild(hist);
-      }
+      teamsRoot.appendChild(row);
+    });
 
-      teamsRoot.appendChild(card);
+    renderSummary();
+  }
+
+  function renderSummary() {
+    summaryRoot.innerHTML = "";
+    state.teams.forEach((team, idx) => {
+      const isDone = team.currentQuestion >= QUESTION_COUNT;
+      const total = team.history.reduce((a, b) => a + b, 0) + (isDone ? 0 : teamCurrentQuestionMs(team));
+      const card = document.createElement("div");
+      card.className = "summary-team" + (isDone ? " done" : "");
+      const splits = team.history.map((ms, i) => `Q${i + 1}: ${formatTime(ms)}`).join(" / ");
+      card.innerHTML = `
+        <div class="name"><span style="color:${TEAM_COLORS[idx]}">●</span> <span class="sname"></span></div>
+        <div class="splits">${splits || "—"}</div>
+        <div class="total">${isDone ? "🏁 " : ""}${formatTime(total)}</div>
+      `;
+      card.querySelector(".sname").textContent = team.name;
+      summaryRoot.appendChild(card);
     });
   }
 
   function tick() {
-    globalTimerEl.textContent = formatTime(globalElapsedMs());
-    if (state.running) {
-      document.querySelectorAll(".question-timer").forEach((el) => {
-        const idx = Number(el.dataset.teamIdx);
-        const team = state.teams[idx];
-        if (team && team.currentQuestion < QUESTION_COUNT) {
-          el.textContent = formatTime(teamCurrentQuestionMs(team));
-        }
-      });
-    }
+    globalTimeEl.textContent = formatTime(globalElapsedMs());
+    if (!state.running) return;
+
+    document.querySelectorAll(".marker").forEach((el) => {
+      const idx = Number(el.dataset.teamIdx);
+      const team = state.teams[idx];
+      if (!team) return;
+      if (team.currentQuestion < QUESTION_COUNT) {
+        const t = el.querySelector(".marker-time");
+        if (t) t.textContent = formatTime(teamCurrentQuestionMs(team));
+      }
+    });
+
+    document.querySelectorAll(".summary-team").forEach((el, idx) => {
+      const team = state.teams[idx];
+      if (!team) return;
+      const isDone = team.currentQuestion >= QUESTION_COUNT;
+      if (isDone) return;
+      const total = team.history.reduce((a, b) => a + b, 0) + teamCurrentQuestionMs(team);
+      const t = el.querySelector(".total");
+      if (t) t.textContent = formatTime(total);
+    });
   }
 
   startBtn.addEventListener("click", () => {
-    if (state.running) pauseGlobal(); else startGlobal();
+    state.running ? pauseGlobal() : startGlobal();
   });
   resetBtn.addEventListener("click", resetAll);
 
