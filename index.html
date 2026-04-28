@@ -268,7 +268,7 @@
       globalStartedAt: null,        // ms epoch (when current run started)
       globalAccumulated: 0,         // ms (frozen total when paused)
       teams: Array.from({ length: TEAM_COUNT }, (_, i) => ({
-        name: `チーム${i + 1}`,
+        name: `${String.fromCharCode(65 + i)}チーム`,
         currentQuestion: 0,         // 0..QUESTION_COUNT (== done)
         questionStartedAt: null,    // ms epoch within global running time? we use global elapsed ms
         questionAccumulated: 0,     // ms accumulated for current question while paused
