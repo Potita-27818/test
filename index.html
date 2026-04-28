@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>同窓会クイズ進行ボード</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel-2: #273449;
+    --accent: #38bdf8;
+    --accent-2: #f59e0b;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --text: #f1f5f9;
+    --muted: #94a3b8;
+    --border: #334155;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic UI", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+  header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+    padding: 20px 24px;
+    border-bottom: 2px solid var(--accent);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .header-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .global-timer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .timer-display {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--accent-2);
+    min-width: 140px;
+    text-align: center;
+    padding: 6px 16px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .timer-display.running {
+    color: var(--success);
+    box-shadow: 0 0 16px rgba(34, 197, 94, 0.3);
+  }
+  button {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+  button:hover:not(:disabled) {
+    background: #334155;
+    transform: translateY(-1px);
+  }
+  button:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--success);
+    border-color: var(--success);
+    color: #fff;
+    font-weight: 600;
+  }
+  .btn-primary:hover:not(:disabled) { background: #16a34a; }
+  .btn-warn {
+    background: var(--accent-2);
+    border-color: var(--accent-2);
+    color: #1e293b;
+    font-weight: 600;
+  }
+  .btn-warn:hover:not(:disabled) { background: #d97706; }
+  .btn-danger {
+    background: transparent;
+    border-color: var(--danger);
+    color: var(--danger);
+  }
+  .btn-danger:hover:not(:disabled) { background: var(--danger); color: #fff; }
+
+  main {
+    padding: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .teams {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+  }
+  .team {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s;
+  }
+  .team.active {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .team.done {
+    border-color: var(--success);
+    background: linear-gradient(180deg, var(--panel) 0%, rgba(34, 197, 94, 0.08) 100%);
+  }
+  .team-name {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin: 0;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+  }
+  .team-name:hover { background: rgba(255,255,255,0.05); }
+  .team-name input {
+    background: var(--panel-2);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 4px 6px;
+    border-radius: 6px;
+    width: 100%;
+    font-family: inherit;
+  }
+  .progress {
+    display: flex;
+    gap: 6px;
+  }
+  .progress-dot {
+    flex: 1;
+    height: 8px;
+    background: var(--panel-2);
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+  .progress-dot.solved { background: var(--success); }
+  .progress-dot.current { background: var(--accent); animation: pulse 1.5s infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .status {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    background: rgba(0,0,0,0.2);
+    padding: 10px 12px;
+    border-radius: 8px;
+  }
+  .status-label {
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .status-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  .question-timer {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1.6rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--accent);
+    padding: 8px;
+    background: rgba(0,0,0,0.25);
+    border-radius: 8px;
+  }
+  .team.done .question-timer { color: var(--success); }
+  .controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .controls .full {
+    grid-column: 1 / -1;
+  }
+  .history {
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: auto;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+  }
+  .history-item .time {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    color: var(--text);
+  }
+  .total-time {
+    color: var(--accent-2);
+    font-weight: 700;
+  }
+  @media (max-width: 600px) {
+    h1 { font-size: 1.2rem; }
+    .timer-display { font-size: 1.6rem; }
+    main { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="header-row">
+    <h1>同窓会クイズ 進行ボード</h1>
+    <div class="global-timer">
+      <div id="globalTimer" class="timer-display">00:00</div>
+      <button id="startBtn" class="btn-primary">スタート</button>
+      <button id="resetBtn" class="btn-danger">全リセット</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="teams" class="teams"></div>
+</main>
+
+<script>
+(function () {
+  const STORAGE_KEY = "quiz-board-state-v1";
+  const TEAM_COUNT = 5;
+  const QUESTION_COUNT = 3;
+
+  function defaultState() {
+    return {
+      running: false,
+      globalStartedAt: null,        // ms epoch (when current run started)
+      globalAccumulated: 0,         // ms (frozen total when paused)
+      teams: Array.from({ length: TEAM_COUNT }, (_, i) => ({
+        name: `チーム${i + 1}`,
+        currentQuestion: 0,         // 0..QUESTION_COUNT (== done)
+        questionStartedAt: null,    // ms epoch within global running time? we use global elapsed ms
+        questionAccumulated: 0,     // ms accumulated for current question while paused
+        history: [],                // array of ms per solved question
+      })),
+    };
+  }
+
+  let state = loadState();
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      if (!parsed.teams || parsed.teams.length !== TEAM_COUNT) return defaultState();
+      return parsed;
+    } catch {
+      return defaultState();
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function nowMs() { return Date.now(); }
+
+  function globalElapsedMs() {
+    if (state.running && state.globalStartedAt != null) {
+      return state.globalAccumulated + (nowMs() - state.globalStartedAt);
+    }
+    return state.globalAccumulated;
+  }
+
+  function teamCurrentQuestionMs(team) {
+    if (team.currentQuestion >= QUESTION_COUNT) return 0;
+    if (state.running && team.questionStartedAt != null) {
+      return team.questionAccumulated + (nowMs() - team.questionStartedAt);
+    }
+    return team.questionAccumulated;
+  }
+
+  function formatTime(ms) {
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+
+  function startGlobal() {
+    if (state.running) return;
+    state.running = true;
+    const t = nowMs();
+    state.globalStartedAt = t;
+    state.teams.forEach((team) => {
+      if (team.currentQuestion < QUESTION_COUNT) {
+        team.questionStartedAt = t;
+      } else {
+        team.questionStartedAt = null;
+      }
+    });
+    saveState();
+    render();
+  }
+
+  function pauseGlobal() {
+    if (!state.running) return;
+    const t = nowMs();
+    state.globalAccumulated += t - state.globalStartedAt;
+    state.globalStartedAt = null;
+    state.teams.forEach((team) => {
+      if (team.questionStartedAt != null) {
+        team.questionAccumulated += t - team.questionStartedAt;
+        team.questionStartedAt = null;
+      }
+    });
+    state.running = false;
+    saveState();
+    render();
+  }
+
+  function resetAll() {
+    if (!confirm("全チームの進行状況とタイマーをリセットします。よろしいですか？")) return;
+    const names = state.teams.map((t) => t.name);
+    state = defaultState();
+    state.teams.forEach((t, i) => (t.name = names[i]));
+    saveState();
+    render();
+  }
+
+  function advanceTeam(idx) {
+    const team = state.teams[idx];
+    if (team.currentQuestion >= QUESTION_COUNT) return;
+    const elapsed = teamCurrentQuestionMs(team);
+    team.history.push(elapsed);
+    team.currentQuestion += 1;
+    team.questionAccumulated = 0;
+    if (state.running && team.currentQuestion < QUESTION_COUNT) {
+      team.questionStartedAt = nowMs();
+    } else {
+      team.questionStartedAt = null;
+    }
+    saveState();
+    render();
+  }
+
+  function undoTeam(idx) {
+    const team = state.teams[idx];
+    if (team.history.length === 0) return;
+    if (!confirm(`${team.name} を1問前に戻します。よろしいですか？`)) return;
+    const prev = team.history.pop();
+    team.currentQuestion -= 1;
+    team.questionAccumulated = prev;
+    if (state.running) {
+      team.questionStartedAt = nowMs();
+    } else {
+      team.questionStartedAt = null;
+    }
+    saveState();
+    render();
+  }
+
+  function renameTeam(idx) {
+    const team = state.teams[idx];
+    const next = prompt("チーム名を入力してください", team.name);
+    if (next == null) return;
+    const trimmed = next.trim();
+    if (!trimmed) return;
+    team.name = trimmed;
+    saveState();
+    render();
+  }
+
+  // ---------- rendering ----------
+  const teamsRoot = document.getElementById("teams");
+  const globalTimerEl = document.getElementById("globalTimer");
+  const startBtn = document.getElementById("startBtn");
+  const resetBtn = document.getElementById("resetBtn");
+
+  function render() {
+    // Global timer button
+    startBtn.textContent = state.running ? "一時停止" : "スタート";
+    startBtn.classList.toggle("btn-primary", !state.running);
+    startBtn.classList.toggle("btn-warn", state.running);
+    globalTimerEl.classList.toggle("running", state.running);
+
+    // Build teams (full re-render keeps things simple)
+    teamsRoot.innerHTML = "";
+    state.teams.forEach((team, idx) => {
+      const card = document.createElement("div");
+      card.className = "team";
+      const isDone = team.currentQuestion >= QUESTION_COUNT;
+      if (isDone) card.classList.add("done");
+      else if (state.running) card.classList.add("active");
+
+      // Name
+      const name = document.createElement("h2");
+      name.className = "team-name";
+      name.textContent = team.name;
+      name.title = "クリックでチーム名を変更";
+      name.addEventListener("click", () => renameTeam(idx));
+      card.appendChild(name);
+
+      // Progress dots
+      const progress = document.createElement("div");
+      progress.className = "progress";
+      for (let q = 0; q < QUESTION_COUNT; q++) {
+        const dot = document.createElement("div");
+        dot.className = "progress-dot";
+        if (q < team.currentQuestion) dot.classList.add("solved");
+        else if (q === team.currentQuestion && !isDone) dot.classList.add("current");
+        progress.appendChild(dot);
+      }
+      card.appendChild(progress);
+
+      // Status row: current question number
+      const status = document.createElement("div");
+      status.className = "status";
+      const lbl = document.createElement("span");
+      lbl.className = "status-label";
+      lbl.textContent = "現在の問題";
+      const val = document.createElement("span");
+      val.className = "status-value";
+      val.textContent = isDone
+        ? "完了 🎉"
+        : `第 ${team.currentQuestion + 1} 問 / ${QUESTION_COUNT}`;
+      status.appendChild(lbl);
+      status.appendChild(val);
+      card.appendChild(status);
+
+      // Question timer
+      const qt = document.createElement("div");
+      qt.className = "question-timer";
+      qt.dataset.teamIdx = String(idx);
+      qt.textContent = isDone ? "—" : formatTime(teamCurrentQuestionMs(team));
+      card.appendChild(qt);
+
+      // Controls
+      const controls = document.createElement("div");
+      controls.className = "controls";
+
+      const advanceBtn = document.createElement("button");
+      advanceBtn.className = "btn-primary full";
+      advanceBtn.textContent = isDone
+        ? "完了済み"
+        : team.currentQuestion === QUESTION_COUNT - 1
+          ? "最終問題を完了"
+          : "次の問題へ";
+      advanceBtn.disabled = isDone;
+      advanceBtn.addEventListener("click", () => advanceTeam(idx));
+      controls.appendChild(advanceBtn);
+
+      const undoBtn = document.createElement("button");
+      undoBtn.className = "full";
+      undoBtn.textContent = "1問戻す";
+      undoBtn.disabled = team.history.length === 0;
+      undoBtn.addEventListener("click", () => undoTeam(idx));
+      controls.appendChild(undoBtn);
+
+      card.appendChild(controls);
+
+      // History
+      if (team.history.length > 0 || isDone) {
+        const hist = document.createElement("div");
+        hist.className = "history";
+        team.history.forEach((ms, qIdx) => {
+          const row = document.createElement("div");
+          row.className = "history-item";
+          const lab = document.createElement("span");
+          lab.textContent = `第${qIdx + 1}問`;
+          const tm = document.createElement("span");
+          tm.className = "time";
+          tm.textContent = formatTime(ms);
+          row.appendChild(lab);
+          row.appendChild(tm);
+          hist.appendChild(row);
+        });
+        if (isDone) {
+          const total = team.history.reduce((a, b) => a + b, 0);
+          const row = document.createElement("div");
+          row.className = "history-item";
+          const lab = document.createElement("span");
+          lab.textContent = "合計";
+          const tm = document.createElement("span");
+          tm.className = "time total-time";
+          tm.textContent = formatTime(total);
+          row.appendChild(lab);
+          row.appendChild(tm);
+          hist.appendChild(row);
+        }
+        card.appendChild(hist);
+      }
+
+      teamsRoot.appendChild(card);
+    });
+  }
+
+  function tick() {
+    globalTimerEl.textContent = formatTime(globalElapsedMs());
+    if (state.running) {
+      document.querySelectorAll(".question-timer").forEach((el) => {
+        const idx = Number(el.dataset.teamIdx);
+        const team = state.teams[idx];
+        if (team && team.currentQuestion < QUESTION_COUNT) {
+          el.textContent = formatTime(teamCurrentQuestionMs(team));
+        }
+      });
+    }
+  }
+
+  startBtn.addEventListener("click", () => {
+    if (state.running) pauseGlobal(); else startGlobal();
+  });
+  resetBtn.addEventListener("click", resetAll);
+
+  render();
+  tick();
+  setInterval(tick, 250);
+})();
+</script>
+</body>
+</html>
