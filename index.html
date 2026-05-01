@@ -252,10 +252,28 @@
   }
   .lane-cell {
     border-right: 1px dashed var(--border-strong);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
   }
   .lane-cell:last-child { border-right: none; }
   .lane-cell.target {
     background: rgba(30, 143, 227, 0.05);
+  }
+  .split-label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+  .split-time {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    line-height: 1;
   }
 
   .marker {
@@ -679,6 +697,16 @@
         const cell = document.createElement("div");
         cell.className = "lane-cell";
         if (c === position) cell.classList.add("target");
+        if (c < team.history.length) {
+          const label = document.createElement("div");
+          label.className = "split-label";
+          label.textContent = c < QUESTION_COUNT ? `第${c + 1}問` : "";
+          const time = document.createElement("div");
+          time.className = "split-time";
+          time.textContent = formatTime(team.history[c]);
+          cell.appendChild(label);
+          cell.appendChild(time);
+        }
         cells.appendChild(cell);
       }
       lane.appendChild(cells);
