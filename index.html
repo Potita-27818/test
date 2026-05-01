@@ -346,9 +346,6 @@
   .marker.done .marker-inner {
     background: var(--success);
   }
-  .marker.done .marker-time::before {
-    content: "✓ ";
-  }
 
   .actions {
     display: flex;
@@ -723,11 +720,9 @@
       inner.innerHTML = `
         <div class="marker-letter">${TEAM_LETTERS[idx]}</div>
         <div class="marker-info">
-          <div class="marker-name"></div>
           <div class="marker-time">00:00</div>
         </div>
       `;
-      inner.querySelector(".marker-name").textContent = team.name;
       inner.querySelector(".marker-time").textContent = isDone
         ? formatTime(team.history.reduce((a, b) => a + b, 0))
         : formatTime(teamCurrentQuestionMs(team));
